@@ -3,8 +3,10 @@ package com.example.miniproject;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView listNewsTitle;
     private TextView listNewsContent;
 
+    MyHelper myHelper;
+
     static String to;//目标译文 可变 zh中文 en英文
 //    private String eng_result;
 
@@ -61,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //no strarting
         listView=findViewById(R.id.list_view);
+        myHelper= new MyHelper(this);
+        SQLiteDatabase db;
+        ContentValues values;
 
         Thread t = getDataByJsoup();
         t.start();
@@ -69,6 +76,14 @@ public class MainActivity extends AppCompatActivity {
             myAdapter=new MyAdapter();
             listView.setAdapter(myAdapter);
 
+            db=myHelper.getWritableDatabase();
+            values=new ContentValues();
+            for(int i=0;i<list.size();i++){
+                values.put("title",(String)list.get(i));
+                values.put("content",(String)list_detail.get(i));
+                db.insert("info",null,values);
+            }
+            db.close();
             //Log.i("mytag",(String)list.get(2));
         } catch (InterruptedException e) {
             e.printStackTrace();
